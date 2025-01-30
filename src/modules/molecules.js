@@ -8,6 +8,10 @@ let totalForce = 0;
 let minRadius = 0.2;
 let maxRadius = 2;
 
+const kB = 1.38e-23; //Stała Boltzmanna
+let currentTemperature = 300;
+let adjustingSpeedToSimulation = 100000000000;
+
 class moleculeClass{
     static maxSpeed = 10;
     static minSpeed = -10;
@@ -46,8 +50,7 @@ class moleculeClass{
         const sphereGeometry = new THREE.SphereGeometry(this.radius);
         const material = new THREE.MeshStandardMaterial({color: 0x347aeb});
         this.#readyMolecule = new THREE.Mesh(sphereGeometry, material);
-        this.speed = new THREE.Vector3(getRandom(this.constructor.minSpeed, this.constructor.maxSpeed), 
-            getRandom(this.constructor.minSpeed, this.constructor.maxSpeed), getRandom(this.constructor.minSpeed, this.constructor.maxSpeed));
+        this.speed = maxwellBoltzmannSpeed(this.radius);
         let cubeDimensions = getDimensions();
         let colisionWithOther;
         let randomLocation
@@ -95,6 +98,34 @@ class moleculeClass{
         this.#readyMolecule.material.color.setHSL(h, s, l);
     }
 }
+
+function maxwellBoltzmannSpeed(mass) {
+    const v_rms = Math.sqrt((3 * kB * currentTemperature) / mass);
+    
+    function normalDistribution() {
+        let u1 = Math.random();
+        let u2 = Math.random();
+        return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    }
+
+    let vx = normalDistribution() * v_rms * adjustingSpeedToSimulation;
+    let vy = normalDistribution() * v_rms * adjustingSpeedToSimulation;
+    let vz = normalDistribution() * v_rms * adjustingSpeedToSimulation;
+
+    return new THREE.Vector3(vx, vy, vz);
+}
+
+function updateMoleculeSpeeds(newTemperature) {
+    let scaleFactor = Math.sqrt(newTemperature / currentTemperature);
+
+    moleculesArray.forEach(function(molecule) {
+        molecule.speed.multiplyScalar(scaleFactor);
+        molecule.colorBasicOnSpeed();
+    });
+
+    currentTemperature = newTemperature;
+}
+
 
 function generateMolecules(numberOfMolecules, scene){
     for(let i = 0; i<numberOfMolecules; ++i){
@@ -265,4 +296,4 @@ function changeRadiusRange(min, max){
 }
 
 export {generateMolecules, updateMolecules, resetToExport, countMolecules, 
-    removeMolecule, verifyMolecules, calculatePressure, changeRadiusRange};
+    removeMolecule, verifyMolecules, calculatePressure, changeRadiusRange, updateMoleculeSpeeds};

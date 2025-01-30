@@ -6,7 +6,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 import {readyCube ,scaleCube} from "./modules/cube.js";
 import {generateMolecules, updateMolecules, resetToExport, countMolecules, 
-  removeMolecule, verifyMolecules, calculatePressure, changeRadiusRange} from "./modules/molecules.js";
+  removeMolecule, verifyMolecules, calculatePressure, changeRadiusRange, updateMoleculeSpeeds} from "./modules/molecules.js";
 
 const addMolecule = document.getElementById("addButton");
 const addNumber = document.getElementById("numberToAdd");
@@ -19,6 +19,8 @@ const maxMass = document.getElementById("maximumMass");
 const resetButton = document.getElementById("reset");
 const moleculesNum = document.getElementById("moleculesStartingNumber");
 const infoText = document.getElementById("information");
+const temperatureLabel = document.getElementById("temperature");
+const temperatureRange = document.getElementById("temperatureRange");
 const [boxX, boxY, boxZ] = [document.getElementById("xSize"),
   document.getElementById("ySize"),document.getElementById("zSize")];
 const statsInfo = new Stats();
@@ -69,6 +71,12 @@ remMolecule.onclick = function(){
   }
 }
 
+temperatureRange.onchange = function(){
+  let newTemperature = parseInt(temperatureRange.value);
+  updateMoleculeSpeeds(newTemperature);
+  temperatureLabel.textContent = "Temperature: " + newTemperature + " K";
+}
+
 resetButton.onclick = resetAnimation;
 
 function updateCounter(){
@@ -100,11 +108,11 @@ camera.position.setX(30);
 camera.position.setZ(30);
 camera.position.setY(40);
 
-const gridHelper = new THREE.GridHelper(200,50);
+//const gridHelper = new THREE.GridHelper(200,50);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
-scene.add(readyCube, gridHelper);
+scene.add(readyCube);
 
 generateMolecules(4, scene);
 updateCounter();
