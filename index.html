@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Symulation</title>
+  </head>
+  <body>
+    <div id="canvas-wrap">
+      <canvas id="myCanvas"></canvas>
+      <div id="overlay">
+        <h3 id="mCounter"></h3>
+        <div class="ButtonsWithNumberField">
+          <button id="addButton">Add molecules</button>
+          <input type="number" id="numberToAdd" min="1" max="100" value="1">
+        </div>
+        <div class="ButtonsWithNumberField">
+          <button id="removeButton">Delete molecules</button>
+          <input type="number" id="numberToRemove" min="1" max="100" value="1">
+        </div>
+        <h3>Scale box:</h3>
+        <div id="resizeBoxes">
+          <div class="resizeBox">
+            <label for="xSize">x:</label>
+            <input type="range" id="xSize" name="Box" min="-5" max="10" value="1" step="1"/>
+          </div>
+          <div class="resizeBox">
+            <label for="ySize">y:</label>
+            <input type="range" id="ySize" name="Box" min="-5" max="10" value="1" step="1"/>
+          </div>
+          <div class="resizeBox">
+            <label for="zSize">z:</label>
+            <input type="range" id="zSize" name="Box" min="-5" max="10" value="1" step="1"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
