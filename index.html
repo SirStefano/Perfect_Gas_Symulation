@@ -9,7 +9,9 @@
   <body>
     <div id="canvas-wrap">
       <canvas id="myCanvas"></canvas>
+      <h1 id="information"></h1>
       <div id="overlay">
+        <h3 id="pressure"></h3>
         <h3 id="mCounter"></h3>
         <div class="ButtonsWithNumberField">
           <button id="addButton">Add molecules</button>
@@ -21,18 +23,36 @@
         </div>
         <h3>Scale box:</h3>
         <div id="resizeBoxes">
-          <div class="resizeBox">
+          <div class="rangeComp">
             <label for="xSize">x:</label>
             <input type="range" id="xSize" name="Box" min="-5" max="10" value="1" step="1"/>
           </div>
-          <div class="resizeBox">
+          <div class="rangeComp">
             <label for="ySize">y:</label>
             <input type="range" id="ySize" name="Box" min="-5" max="10" value="1" step="1"/>
           </div>
-          <div class="resizeBox">
+          <div class="rangeComp">
             <label for="zSize">z:</label>
             <input type="range" id="zSize" name="Box" min="-5" max="10" value="1" step="1"/>
           </div>
+        </div>
+        <div id="newSymulation">
+          <h3>Reset symulation</h3>
+          <h5>New simulation parameters:</h5>
+          <p>Mass of single molecule:</p>
+          <div class="rangeComp">
+            <label for="minimumMass">Min:</label>
+            <input type="range" id="minimumMass" name="Box" min="-8" max="8" value="-1" step="1"/>
+          </div>
+          <div class="rangeComp">
+            <label for="maximumMass">Max:</label>
+            <input type="range" id="maximumMass" name="Box" min="-8" max="8" value="2" step="1"/>
+          </div>
+          <div class="parameter">
+            <label for="moleculesStartingNumber">Molecules:</label>
+            <input type="number" id="moleculesStartingNumber" min="1" max="100" value="1">
+          </div>
+          <button id="reset">Reset</button>
         </div>
       </div>
     </div>

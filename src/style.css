@@ -14,7 +14,7 @@ canvas{
   align-items: center;
   flex-direction: column;
   width: 250px;
-  height: 300px;
+  height: 500px;
   background: white;
   position:absolute; 
   left: 70%; 
@@ -22,7 +22,15 @@ canvas{
   transform: translateY(-50%);
   border-radius: 20px;
 }
-.resizeBox{
+#information{
+  position:absolute; 
+  left: 50%; 
+  top: 5%;
+  text-align: center;
+  transform: translateX(-50%);
+  width: 100%;
+}
+.rangeComp{
   display: flex;
   flex-direction: row;
 }
@@ -44,3 +52,35 @@ h3{
   margin-top: 10px;
 }
 
+#newSymulation{
+  border-radius: 10px;
+  margin: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: lightblue;
+}
+
+#newSymulation h3{
+  margin: 0px;
+  margin-bottom: 2px;
+}
+
+#newSymulation h5{
+  margin: 0px;
+  margin-bottom: 2px;
+}
+
+#newSymulation p{
+  margin: 0px;
+  margin-bottom: 2px;
+}
+
+#newSymulation button{
+  padding: 5px;
+}
+
+.parameter{
+  margin: 5px;
+}

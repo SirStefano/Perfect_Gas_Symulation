@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
 import {getDimensions} from "./cube.js";
-import { mx_bilerp_1 } from 'three/src/nodes/materialx/lib/mx_noise.js';
 
 let moleculesArray = [];
+let totalForce = 0;
 
-const minRadius = 0.2;
-const maxRadius = 2;
+let minRadius = 0.2;
+let maxRadius = 2;
 
 class moleculeClass{
     static maxSpeed = 10;
@@ -118,51 +118,37 @@ function removeMolecule(scene){
     }
 }
 
-function moleculeWithWallColision(element){
+function moleculeWithWallColision(element, margin = 0){
     let cubeDimensions = getDimensions();
-    if(element.futurePosition.x - element.radius <= cubeDimensions.x1 
-            || element.futurePosition.x + element.radius >= cubeDimensions.x2){
+    if(element.futurePosition.x - element.radius + margin <= cubeDimensions.x1 
+            || element.futurePosition.x + element.radius - margin >= cubeDimensions.x2){
+        if(margin == 0){
+            let force = 2 * element.radius * Math.abs(element.speed.x);
+            totalForce += force;
+        }
         element.speed.x *= (-1);
         return true;
     }
-    if(element.futurePosition.y - element.radius <= cubeDimensions.y1 
-            || element.futurePosition.y + element.radius >= cubeDimensions.y2){
+    if(element.futurePosition.y - element.radius + margin <= cubeDimensions.y1 
+            || element.futurePosition.y + element.radius - margin >= cubeDimensions.y2){
+        if(margin == 0){
+            let force = 2 * element.radius * Math.abs(element.speed.y);
+            totalForce += force;
+        }
         element.speed.y *= (-1);
         return true;
     }
-    if(element.futurePosition.z - element.radius <= cubeDimensions.z1 
-            || element.futurePosition.z + element.radius >= cubeDimensions.z2){
+    if(element.futurePosition.z - element.radius + margin <= cubeDimensions.z1 
+            || element.futurePosition.z + element.radius - margin >= cubeDimensions.z2){
+        if(margin == 0){
+            let force = 2 * element.radius * Math.abs(element.speed.z);
+            totalForce += force;
+        }
         element.speed.z *= (-1);
         return true;
     }
 }
 
-// function postColisionSpeed(m1, m2, v1, v2){
-//     return ((m1 - m2) * v1 + 2 * m2 * v2) / (m1 + m2);
-// }
-
-// function moleculeWithMoleculeColision(element, superiorIterator){
-//     for(let i = (superiorIterator + 1); i < moleculesArray.length; i++){
-//         if(element.distanceFromAnotherMolecule(moleculesArray[i]) <= 0){
-//             let speed1 = new THREE.Vector3(
-//                 postColisionSpeed(element.radius, moleculesArray[i].radius, element.speed.x, moleculesArray[i].speed.x), 
-//                 postColisionSpeed(element.radius, moleculesArray[i].radius, element.speed.y, moleculesArray[i].speed.y),
-//                 postColisionSpeed(element.radius, moleculesArray[i].radius, element.speed.z, moleculesArray[i].speed.z));
-//             let speed2 = new THREE.Vector3(
-//                 postColisionSpeed(moleculesArray[i].radius, element.radius, moleculesArray[i].speed.x, element.speed.x), 
-//                 postColisionSpeed(moleculesArray[i].radius, element.radius, moleculesArray[i].speed.y, element.speed.y),
-//                 postColisionSpeed(moleculesArray[i].radius, element.radius, moleculesArray[i].speed.z, element.speed.z));
-//             element.speed = speed1;
-//             moleculesArray[i].speed = speed2;
-//             element.colorBasicOnSpeed();
-//             moleculesArray[i].colorBasicOnSpeed();
-//             while(element.futureDistanceFromAnotherMolecule(moleculesArray[i]) <= 0){
-//                 moleculeWithWallColision(element);
-//                 element.move();
-//             }
-//         }
-//     }
-// }
 
 function postCollisionVelocity(m1, m2, v1, v2, normal) {
     let v1n = v1.dot(normal); 
@@ -213,12 +199,16 @@ function colisionCheck(){
     });
 }
 
-function updateMolecules(){
+function updateMolecules(scene){
     moleculeClass.updateDT();
     colisionCheck();
     moleculesArray.forEach(element => {
         element.move();
     });
+    let countBefore = moleculesArray.length;
+    verifyMolecules(scene, maxRadius);
+    let countAfter = moleculesArray.length;
+    generateMolecules(countBefore-countAfter, scene);
 }
 
 function getRandom(min, max) {
@@ -233,9 +223,9 @@ function countMolecules(){
     return moleculesArray.length;
 }
 
-function verifyMolecules(scene){
+function verifyMolecules(scene, margin = 0){
     for(let i = moleculesArray.length - 1; i>=0; i--){
-        if(moleculeWithWallColision(moleculesArray[i])){
+        if(moleculeWithWallColision(moleculesArray[i], margin)){
             scene.remove(moleculesArray[i].molecule);
             moleculesArray[i] = moleculesArray[moleculesArray.length - 1];
             moleculesArray.pop();
@@ -256,4 +246,23 @@ function filledToMax(radiusToCalculate){
     return false;
 }
 
-export {generateMolecules, updateMolecules, resetToExport, countMolecules, removeMolecule, verifyMolecules};
+function calculatePressure(){
+    let cubeDimensions = getDimensions();
+    let width = cubeDimensions.x2 * 2;
+    let height = cubeDimensions.y2;
+    let depth = cubeDimensions.z2 * 2;
+    let cubeArea = width * height * 2 + width * depth * 2 + height * depth *2;
+    let pressure = totalForce/cubeArea;
+    totalForce = 0;
+    return pressure;
+}
+
+function changeRadiusRange(min, max){
+    if(moleculesArray.length==0){
+        minRadius = min;
+        maxRadius = max;
+    }
+}
+
+export {generateMolecules, updateMolecules, resetToExport, countMolecules, 
+    removeMolecule, verifyMolecules, calculatePressure, changeRadiusRange};
