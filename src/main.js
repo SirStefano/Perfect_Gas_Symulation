@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {OrbitControls}  from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
-import {readyCube ,scaleCube} from "./modules/cube.js";
+import {addCubeToScene ,scaleCube, lightBlackMode} from "./modules/cube.js";
 import {generateMolecules, updateMolecules, resetToExport, countMolecules, 
   removeMolecule, verifyMolecules, calculatePressure, changeRadiusRange, updateMoleculeSpeeds} from "./modules/molecules.js";
 
@@ -21,9 +21,18 @@ const moleculesNum = document.getElementById("moleculesStartingNumber");
 const infoText = document.getElementById("information");
 const temperatureLabel = document.getElementById("temperature");
 const temperatureRange = document.getElementById("temperatureRange");
+const gridButton = document.getElementById("grid");
+const startInfo = document.getElementById("startingInfo");
+const lightModeButton = document.getElementById("lightMode");
+let lightMode = false;
 const [boxX, boxY, boxZ] = [document.getElementById("xSize"),
   document.getElementById("ySize"),document.getElementById("zSize")];
 const statsInfo = new Stats();
+
+const cameraPosition = new THREE.Vector3(30, 40, 40);
+let timer;
+const gridHelper = new THREE.GridHelper(200,50);
+let gridOnScene = true;
 
 boxX.onchange = handleResizeChange;
 boxY.onchange = handleResizeChange;
@@ -33,18 +42,23 @@ addMolecule.onclick = function(){
   const oldNumber = countMolecules();
   generateMolecules(addNumber.value, scene);
   const newNumber = countMolecules();
-  displayInfo(oldNumber, newNumber)
+  displayMoleculesInfo(oldNumber, newNumber)
   updateCounter();
 }
 
-function displayInfo(oldNumber, newNumber){
+function displayMoleculesInfo(oldNumber, newNumber){
   const diffrance = newNumber - oldNumber;
   if(diffrance == 0){
-    infoText.textContent = "Can't add any new molecules, please try resize box for more space";
+    displayInfo("Can't add any new molecules, please try resize box for more space");
   }else{
-    infoText.textContent = "Successfully added "+diffrance+" molecules";
+    displayInfo("Successfully added "+diffrance+" molecules");
   }
-  setTimeout(function(){infoText.textContent=""},3000);
+}
+
+function displayInfo(info){
+  infoText.textContent = info;
+  clearTimeout(timer);
+  timer = setTimeout(function(){infoText.textContent=""},3000);
 }
 
 function handleResizeChange(){
@@ -54,6 +68,11 @@ function handleResizeChange(){
   scaleCube(x, y, z);
   verifyMolecules(scene);
   updateCounter();
+  let scale = (x + y + z)/3;
+  camera.position.setX(cameraPosition.x*scale);
+  camera.position.setZ(cameraPosition.z*scale);
+  camera.position.setY(cameraPosition.y*scale);
+  displayInfo("Successful resize of box, camera automatic set to see all box");
 }
 
 function negativeToRoot(number){
@@ -72,9 +91,13 @@ remMolecule.onclick = function(){
 }
 
 temperatureRange.onchange = function(){
-  let newTemperature = parseInt(temperatureRange.value);
+  changeSpeed(parseInt(temperatureRange.value));
+}
+
+function changeSpeed(newTemperature){
   updateMoleculeSpeeds(newTemperature);
   temperatureLabel.textContent = "Temperature: " + newTemperature + " K";
+  temperatureRange.value = newTemperature;
 }
 
 resetButton.onclick = resetAnimation;
@@ -94,8 +117,20 @@ function updatePressure(){
 
 setInterval(updatePressure, 1000);
 
+gridButton.onclick = function(){
+  if(gridOnScene){
+    scene.remove(gridHelper);
+    gridOnScene = false;
+    gridButton.textContent = "Add grid";
+  }else{
+    scene.add(gridHelper);
+    gridOnScene = true;
+    gridButton.textContent = "Remove grid";
+  }
+}
+
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xc5dbdb);
+scene.background = new THREE.Color(0x222222);
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({
@@ -104,15 +139,15 @@ const renderer = new THREE.WebGLRenderer({
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-camera.position.setX(30);
-camera.position.setZ(30);
-camera.position.setY(40);
-
-//const gridHelper = new THREE.GridHelper(200,50);
+camera.position.setX(cameraPosition.x);
+camera.position.setZ(cameraPosition.z);
+camera.position.setY(cameraPosition.y);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
-scene.add(readyCube);
+addCubeToScene(scene);
+
+scene.add(gridHelper);
 
 generateMolecules(4, scene);
 updateCounter();
@@ -135,6 +170,7 @@ function resetAnimation(){
   for(let i = 0; i<numberOfM; ++i){
     removeMolecule(scene);
   }
+  changeSpeed(300);
   scaleCube(1, 1, 1);
   changeRadiusRange(negativeToRoot(parseInt(minMass.value)),negativeToRoot(parseInt(maxMass.value)));
   generateMolecules(parseInt(moleculesNum.value), scene);
@@ -142,6 +178,9 @@ function resetAnimation(){
   boxX.value = 1;
   boxY.value = 1;
   boxZ.value = 1;
+  camera.position.setX(cameraPosition.x);
+  camera.position.setZ(cameraPosition.z);
+  camera.position.setY(cameraPosition.y);
 }
 
 document.addEventListener("visibilitychange", function() {
@@ -156,7 +195,32 @@ document.addEventListener("visibilitychange", function() {
 window.onload = function(){
   statsInfo.begin();
   document.body.appendChild(statsInfo.dom);
+  setTimeout(function(){
+    startInfo.textContent = "";
+  }, 5000);
   animate();
+}
+
+lightModeButton.onclick = function(){
+  if(lightMode){
+    scene.background = new THREE.Color(0x222222);
+    lightBlackMode(false);
+    lightModeButton.textContent = "Dark Mode";
+    lightMode = false;
+    infoText.classList.remove("lightMode");
+    infoText.classList.add("darkMode");
+    startInfo.classList.remove("lightMode");
+    startInfo.classList.add("darkMode");
+  }else{
+    scene.background = new THREE.Color(0xF5F5F5);
+    lightBlackMode(true);
+    lightModeButton.textContent = "Light Mode";
+    lightMode = true;
+    infoText.classList.remove("darkMode");
+    infoText.classList.add("lightMode");
+    startInfo.classList.remove("darkMode");
+    startInfo.classList.add("lightMode");
+  }
 }
 
 

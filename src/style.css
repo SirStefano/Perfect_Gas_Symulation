@@ -14,7 +14,7 @@ canvas{
   align-items: center;
   flex-direction: column;
   width: 250px;
-  height: 500px;
+  height: 565px;
   background: white;
   position:absolute; 
   left: 70%; 
@@ -30,6 +30,21 @@ canvas{
   transform: translateX(-50%);
   width: 100%;
 }
+#startingInfo{
+  position:absolute;
+  left: 50%;
+  top:60%;
+  width: 30%;
+  text-align: center;
+  transform: translateX(-50%);
+}
+.lightMode{
+  color: #222222;
+}
+.darkMode{
+  color: #FFD700;
+}
+
 .rangeComp{
   display: flex;
   flex-direction: row;
@@ -83,4 +98,15 @@ h3{
 
 .parameter{
   margin: 5px;
+}
+
+#grid{
+  width: 150px;
+  padding: 5px;
+}
+
+#lightMode{
+  margin-top: 5px;
+  width: 150px;
+  padding: 5px;
 }
