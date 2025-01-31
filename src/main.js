@@ -49,7 +49,7 @@ addMolecule.onclick = function(){
 function displayMoleculesInfo(oldNumber, newNumber){
   const diffrance = newNumber - oldNumber;
   if(diffrance == 0){
-    displayInfo("Can't add any new molecules, please try resize box for more space");
+    displayInfo("Can't add any new molecules, please resize the box for more space");
   }else{
     displayInfo("Successfully added "+diffrance+" molecules");
   }
@@ -71,7 +71,11 @@ function handleResizeChange(){
   let scale = (x + y + z)/3;
   camera.position.setX(cameraPosition.x*scale);
   camera.position.setZ(cameraPosition.z*scale);
-  camera.position.setY(cameraPosition.y*scale);
+  if(scale >= y){
+    camera.position.setY(cameraPosition.y*scale);
+  }else{
+    camera.position.setY(cameraPosition.y*y);
+  }
   displayInfo("Successful resize of box, camera automatic set to see all box");
 }
 
