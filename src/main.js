@@ -209,7 +209,7 @@ lightModeButton.onclick = function(){
   if(lightMode){
     scene.background = new THREE.Color(0x222222);
     lightBlackMode(false);
-    lightModeButton.textContent = "Dark Mode";
+    lightModeButton.textContent = "Light Mode";
     lightMode = false;
     infoText.classList.remove("lightMode");
     infoText.classList.add("darkMode");
@@ -218,7 +218,7 @@ lightModeButton.onclick = function(){
   }else{
     scene.background = new THREE.Color(0xF5F5F5);
     lightBlackMode(true);
-    lightModeButton.textContent = "Light Mode";
+    lightModeButton.textContent = "Dark Mode";
     lightMode = true;
     infoText.classList.remove("darkMode");
     infoText.classList.add("lightMode");
